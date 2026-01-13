@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berjaya - SuratRasmi.my</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .success-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .success-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-page">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h1>Pembayaran Berjaya! 🎉</h1>
+            <p style="color:var(--text-secondary);margin-bottom:32px">Surat rasmi anda sedia untuk dimuat turun.</p>
+            <button id="downloadPdf" class="btn btn-primary btn-large btn-full">📥 Muat Turun PDF</button>
+            <br><br>
+            <a href="index.html" class="btn btn-secondary">← Kembali</a>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('downloadPdf').addEventListener('click', function () {
+            const data = JSON.parse(localStorage.getItem('letterData') || '{}');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 20;
+
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text((data.sender_name || 'NAMA').toUpperCase(), 200, y, { align: 'right' });
+            y += 6;
+            doc.setFont('helvetica', 'normal');
+            if (data.sender_address) { doc.text(data.sender_address, 200, y, { align: 'right' }); y += 6; }
+            if (data.sender_phone) { doc.text('Tel: ' + data.sender_phone, 200, y, { align: 'right' }); y += 12; }
+
+            doc.text(new Date().toLocaleDateString('ms-MY'), 20, y);
+            y += 12;
+
+            doc.text(data.recipient_name || '', 20, y); y += 6;
+            if (data.recipient_org) { doc.text(data.recipient_org, 20, y); y += 6; }
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('Tuan/Puan,', 20, y);
+            y += 10;
+
+            doc.setFont('helvetica', 'normal');
+            const content = data.content || 'Isi kandungan surat.';
+            const lines = doc.splitTextToSize(content, 170);
+            doc.text(lines, 20, y);
+            y += lines.length * 6 + 15;
+
+            doc.text('Sekian, terima kasih.', 20, y);
+            y += 20;
+            doc.text('Yang benar,', 20, y);
+            y += 25;
+            doc.setFont('helvetica', 'bold');
+            doc.text((data.sender_name || '').toUpperCase(), 20, y);
+
+            doc.save('Surat_Rasmi.pdf');
+        });
+    </script>
+</body>
+
+</html>
